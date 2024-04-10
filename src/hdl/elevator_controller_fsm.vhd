@@ -71,8 +71,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity elevator_controller_fsm is
-    Port ( i_clk     : in  STD_LOGIC;
-           i_reset   : in  STD_LOGIC;
+    Port ( i_elevator_clk     : in  STD_LOGIC;
+           i_elevator_reset   : in  STD_LOGIC;
            i_stop    : in  STD_LOGIC;
            i_up_down : in  STD_LOGIC;
            o_floor   : out STD_LOGIC_VECTOR (3 downto 0)		   
@@ -119,11 +119,11 @@ begin
 	
 	-- PROCESSES ------------------------------------------------------------------------------------------	
 	-- State memory ------------
-	register_proc : process (i_clk)
+	register_proc : process (i_elevator_clk)
     begin
          -- synchronous reset
-         if rising_edge (i_clk) then
-            if i_reset = '1' then
+         if rising_edge (i_elevator_clk) then
+            if i_elevator_reset = '1' then
                 f_Q <= s_floor2;
             elsif (i_stop = '0') then
                 f_Q <= f_Q_next;
