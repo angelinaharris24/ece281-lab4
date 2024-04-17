@@ -136,6 +136,10 @@ architecture top_basys3_arch of top_basys3 is
     signal x_clk : std_logic;
     signal w_floor : std_logic_vector (7 downto 0);
     signal w_cath : std_logic_vector (3 downto 0);
+    signal w_elevator_reset : std_logic;
+    signal w_clk_reset : std_logic;
+    signal w_clk_reset2 : std_logic;
+    signal w_tdm_reset : std_logic;
     
     
 begin
@@ -143,7 +147,7 @@ begin
 	elevator_inst: elevator_controller_fsm
         port map(
         i_elevator_clk     => w_clk,
-        i_elevator_reset   => btnR or btnU, -- get this to work!!
+        i_elevator_reset   => w_elevator_reset, -- won't work because it's synchronous reset
         i_stop    => sw(0),
         i_up_down => sw(1),
         o_floor   => w_floor
@@ -153,15 +157,15 @@ begin
          generic map ( k_DIV => 25000000) 
          port map (                         
             i_clk   => clk,
-            i_reset => btnL or btnU,
+            i_reset => w_clk_reset,
             o_clk   => w_clk
          );   
          
        clkdiv_inst2 : clock_divider 		-- 2nd instantiation of clock_divider for the TDM
-          generic map ( k_DIV => 1000) -- make a 1KHZ clk
-          port map (                    -- find the right HZ VALUE!!!      
+          generic map ( k_DIV => 1000) 
+          port map (                          
                i_clk   => clk,
-               i_reset => btnL or btnU,
+               i_reset => w_clk_reset2,
                o_clk   => x_clk
             ); 
          
@@ -169,7 +173,7 @@ begin
          TDM4_inst: TDM4
             port map (
                i_clk  => x_clk,  
-               i_reset => btnL or btnU,      
+               i_reset => w_tdm_reset,      
                i_D3  => w_floor (7 downto 4), 
                i_D2  => w_floor (3 downto 0), 
                i_D1 => "0000",   
@@ -193,6 +197,11 @@ begin
        
        led (14 downto 0) <= (others => '0');
        led(15) <= w_clk;
+       w_elevator_reset <= (btnR or btnU);
+       w_clk_reset <= (btnL or btnU);
+       w_clk_reset2 <= (btnL or btnU);
+       w_tdm_reset <= (btnL or btnU);
+     
    
        
 	
